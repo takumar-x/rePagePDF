@@ -1,6 +1,6 @@
 import customtkinter as ctk
 from tkinter import filedialog, messagebox
-import fitz  # PyMuPDF
+import fitz
 from PIL import Image
 import io
 import os
@@ -12,8 +12,15 @@ ctk.set_default_color_theme("blue")
 class ConfigManager:
     def __init__(self):
         base_dir = os.path.dirname(os.path.abspath(__file__))
-        self.config_file = os.path.join(base_dir, "settings.ini")
         self.lang_file = os.path.join(base_dir, "languages.ini")
+        
+        app_data = os.getenv('APPDATA')
+        self.save_dir = os.path.join(app_data, "rePagePDF")
+        
+        if not os.path.exists(self.save_dir):
+            os.makedirs(self.save_dir)
+
+        self.config_file = os.path.join(self.save_dir, "settings.ini")
         
         self.config = configparser.ConfigParser()
         self.lang_config = configparser.ConfigParser()
@@ -353,7 +360,7 @@ class PrinterApp(ctk.CTk):
         self.buttons_list = []
         self.drag_data = {"active": False, "start_x": 0, "start_y": 0, "target_index": None, "pending_select": None}
         self.autoscroll_active = False
-        self.compression_mode_index = 0 # 0 = Lossless, 1 = Compressed
+        self.compression_mode_index = 0
         
         self._setup_layout()
         self._setup_bindings()
@@ -418,7 +425,6 @@ class PrinterApp(ctk.CTk):
         self.btn_booklet = ctk.CTkButton(self.sidebar, text=cfg.get_text("btn_booklet"), command=self.create_booklet, state="disabled", fg_color="#E0a800", text_color="black")
         self.btn_booklet.grid(row=10, column=0, padx=10, pady=5)
 
-        # Navigation Frame
         self.nav_frame = ctk.CTkFrame(self.sidebar, fg_color="transparent")
         self.nav_frame.grid(row=11, column=0, padx=10, pady=5)
         
